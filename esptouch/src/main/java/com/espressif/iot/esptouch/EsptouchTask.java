@@ -27,6 +27,10 @@ public class EsptouchTask implements IEsptouchTask {
         this(apSsid, apBssid, apPassword, null, context);
     }
 
+    public EsptouchTask(String apSsid, String apBssid, String apPassword, int timeoutMillisecond, Context context) {
+        this(apSsid, apBssid, apPassword, timeoutMillisecond, null, context);
+    }
+
     /**
      * Constructor of EsptouchTask
      *
@@ -58,6 +62,25 @@ public class EsptouchTask implements IEsptouchTask {
         init(context, ssid, bssid, password, encryptor);
     }
 
+    private EsptouchTask(String apSsid, String apBssid, String apPassword, int timeoutMillisecond, ITouchEncryptor encryptor, Context context) {
+        if (TextUtils.isEmpty(apSsid)) {
+            throw new NullPointerException("SSID can't be empty");
+        }
+        if (TextUtils.isEmpty(apBssid)) {
+            throw new NullPointerException("BSSID can't be empty");
+        }
+        if (apPassword == null) {
+            apPassword = "";
+        }
+        TouchData ssid = new TouchData(apSsid);
+        TouchData bssid = new TouchData(TouchNetUtil.parseBssid2bytes(apBssid));
+        if (bssid.getData().length != 6) {
+            throw new IllegalArgumentException("Bssid format must be aa:bb:cc:dd:ee:ff");
+        }
+        TouchData password = new TouchData(apPassword);
+        init(context, ssid, bssid, password, timeoutMillisecond, encryptor);
+    }
+
     private EsptouchTask(byte[] apSsid, byte[] apBssid, byte[] apPassword, ITouchEncryptor encryptor, Context context) {
         if (apSsid == null || apSsid.length == 0) {
             throw new NullPointerException("SSID can't be empty");
@@ -76,6 +99,12 @@ public class EsptouchTask implements IEsptouchTask {
 
     private void init(Context context, TouchData ssid, TouchData bssid, TouchData password, ITouchEncryptor encryptor) {
         _mParameter = new EsptouchTaskParameter();
+        _mEsptouchTask = new __EsptouchTask(context, ssid, bssid, password, encryptor, _mParameter);
+    }
+
+    private void init(Context context, TouchData ssid, TouchData bssid, TouchData password, int timeoutMillisecond, ITouchEncryptor encryptor) {
+        _mParameter = new EsptouchTaskParameter();
+        _mParameter.setWaitUdpTotalMillisecond(timeoutMillisecond);
         _mEsptouchTask = new __EsptouchTask(context, ssid, bssid, password, encryptor, _mParameter);
     }
 
