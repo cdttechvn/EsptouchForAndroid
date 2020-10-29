@@ -8,6 +8,7 @@ android {
         targetSdkVersion 29
         versionCode 8
         versionName "v0.3.7.2"
+        buildConfigField "String", "VERSION_NAME", "\"0.3.7.2\""
     }
 
     buildTypes {
